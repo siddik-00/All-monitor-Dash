@@ -11,18 +11,20 @@ function remember(){try{localStorage.setItem(`devops-workflow-v2:${view}`,JSON.s
 function renderDashboard(){
  if(!graph)return;
  const s=clusterData?.summary, mode=clusterData?.mode;
- $('metric-nodes').textContent=s?`${s.readyNodes} / ${s.totalNodes}`:'—';
+ const hasCpu=Number.isFinite(s?.cpuPercent),hasMemory=Number.isFinite(s?.memoryPercent),hasAlerts=Number.isFinite(s?.firingAlerts);
+ $('metric-nodes').textContent=s&&Number.isFinite(s.readyNodes)&&Number.isFinite(s.totalNodes)?`${s.readyNodes} / ${s.totalNodes}`:'—';
  $('metric-nodes-note').textContent=s?`${clusterData.cluster} · ${mode==='demo'?'sample snapshot':'cluster snapshot'}`:'Connect a cluster to load server health';
- $('metric-workloads').textContent=s?`${s.readyPods} / ${s.totalPods}`:'—';
- $('metric-workloads-note').textContent=s?`${s.workloads} deployments · click to inspect pods`:'Click to inspect running pods';
- $('metric-alerts').textContent=s?String(s.firingAlerts):'—';
- $('metric-alerts-note').textContent=s?`${clusterData.alerts?.length||0} alerts · ${mode==='demo'?'sample data':'monitoring'}`:'Waiting for monitoring data';
- $('metric-cpu').textContent=s?`${Math.round(s.cpuPercent)}%`:'—';
- $('metric-memory').textContent=s?`${Math.round(s.memoryPercent)}%`:'—';
- $('cpu-bar').style.width=s?`${Math.max(0,Math.min(100,s.cpuPercent))}%`:'0%';
- $('memory-bar').style.width=s?`${Math.max(0,Math.min(100,s.memoryPercent))}%`:'0%';
+ $('metric-workloads').textContent=s&&Number.isFinite(s.readyPods)&&Number.isFinite(s.totalPods)?`${s.readyPods} / ${s.totalPods}`:'—';
+ $('metric-workloads-note').textContent=s&&Number.isFinite(s.workloads)?`${s.workloads} deployments · click to inspect pods`:'Connect a cluster to inspect pods';
+ $('metric-alerts').textContent=hasAlerts?String(s.firingAlerts):'—';
+ $('metric-alerts-note').textContent=hasAlerts?`${clusterData.alerts?.length||0} alerts · ${mode==='demo'?'sample data':'monitoring'}`:'Prometheus alert source unavailable';
+ $('metric-cpu').textContent=hasCpu?`${Math.round(s.cpuPercent)}%`:'—';
+ $('metric-memory').textContent=hasMemory?`${Math.round(s.memoryPercent)}%`:'—';
+ $('cpu-bar').style.width=hasCpu?`${Math.max(0,Math.min(100,s.cpuPercent))}%`:'0%';
+ $('memory-bar').style.width=hasMemory?`${Math.max(0,Math.min(100,s.memoryPercent))}%`:'0%';
  $('resource-state').textContent=s?(mode==='demo'?'SAMPLE':'LIVE'):'CLUSTER';
- $('metric-resource-note').textContent=s?`Updated ${new Date(clusterData.timestamp).toLocaleTimeString()} · ${mode==='demo'?'sample telemetry':'API telemetry'}`:'Live telemetry appears when the API is connected';
+ const metricsState=hasCpu&&hasMemory?'Prometheus telemetry':hasCpu||hasMemory?'Partial metrics':'Prometheus metrics unavailable';
+ $('metric-resource-note').textContent=s?`Updated ${new Date(clusterData.timestamp).toLocaleTimeString()} · ${mode==='demo'?'sample telemetry':metricsState}`:'Live telemetry appears when the API is connected';
  $('environment').classList.toggle('connected',!!clusterData);
  const list=$('workload-list');list.replaceChildren();
  if(clusterData?.workloads?.length){
