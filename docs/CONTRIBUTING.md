@@ -8,11 +8,11 @@ Choose one bug, documentation gap, or dashboard feature. Before making a large c
 
 Useful next improvements for this repository:
 
-1. Add a namespace filter to the dashboard pod inventory.
-2. Show CPU and memory usage by node when Prometheus is connected.
-3. Add provider tests for multiple kubeconfig contexts and file changes.
-4. Improve the dashboard's mobile layout and keyboard navigation.
-5. Document a complete local k3d setup and teardown.
+1. Show CPU and memory usage by node when Prometheus is connected.
+2. Add provider tests for multiple kubeconfig contexts and file changes.
+3. Improve the dashboard's mobile layout and keyboard navigation.
+4. Document a complete local k3d setup and teardown.
+5. Add a dashboard view for recent Kubernetes events with namespace filtering.
 
 Pick one item at a time. Each is small enough to review on its own.
 
@@ -23,10 +23,10 @@ Start from the latest `dev` branch and use a short, descriptive branch name:
 ```bash
 git switch dev
 git pull --ff-only
-git switch -c fix/pod-namespace-filter
+git switch -c docs/multi-cluster-api
 ```
 
-Keep each commit focused and describe the result, for example `Add namespace filter to pod inventory`.
+Keep each commit focused and describe the result, for example `Document multi-cluster context API`.
 
 ## Validate the change
 

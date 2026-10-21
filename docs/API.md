@@ -24,7 +24,11 @@ For example: `ARGOCD_URL=https://argocd.example`, `ARGOCD_TOKEN_FILE=/run/secret
 
 Workflow routes return allowlisted JSON definitions. Cluster routes return inventory, workloads, events, metrics and partial-data warnings. Missing metrics remain null. Namespace must be `all` or a valid name; range is `1h`, `6h` or `24h`. Pod logs are opt-in, bounded, and require separate RBAC.
 
-The root URL is JSON metadata. `/canvas/` serves only allowlisted editor assets. `/healthz` and `/readyz` are process health, independent of upstream readiness. `/metrics` exposes request counters. OpenAPI is at `packages/contracts/openapi.yaml` and `/api/v1/openapi`.
+## Multiple kubeconfig contexts
+
+For a local dashboard, set `KUBECONFIG_ENABLED=true` and point `KUBECONFIG` at one or more kubeconfig files. `GET /api/v1/clusters` returns available context names, the current context, and a file revision marker; it never returns kubeconfig contents or credentials. Cluster reads accept an optional `context` query parameter, for example `GET /api/v1/cluster/snapshot?context=staging`. If omitted, the API uses the kubeconfig's current context. Contexts are passed to `kubectl` server-side. The dashboard polls the context list every five seconds and refreshes its inventory when the current context or kubeconfig files change. A context's configured default namespace is used for inventory when `namespace=all`.
+
+The root URL redirects to `/canvas/`, which serves only allowlisted editor assets. `/healthz` and `/readyz` are process health, independent of upstream readiness. `/metrics` exposes request counters. OpenAPI is at `packages/contracts/openapi.yaml` and `/api/v1/openapi`.
 
 ## Logs and traces
 
