@@ -26,6 +26,9 @@ function renderDashboard(){
  const metricsState=hasCpu&&hasMemory?'Prometheus telemetry':hasCpu||hasMemory?'Partial metrics':'Prometheus metrics unavailable';
  $('metric-resource-note').textContent=s?`Updated ${new Date(clusterData.timestamp).toLocaleTimeString()} · ${mode==='demo'?'sample telemetry':metricsState}`:'Live telemetry appears when the API is connected';
  $('environment').classList.toggle('connected',!!clusterData);
+ const warnings=$('cluster-warnings');warnings.replaceChildren();
+ for(const warning of (clusterData?.warnings||[]).slice(0,4))warnings.append(dom('div',warning,'cluster-warning'));
+ warnings.hidden=warnings.childElementCount===0;
  const list=$('workload-list');list.replaceChildren();
  if(clusterData?.workloads?.length){
   $('workload-caption').textContent=`${clusterData.cluster} · ${clusterData.namespace} namespace · ${clusterData.mode==='demo'?'sample data':'live snapshot'}`;
