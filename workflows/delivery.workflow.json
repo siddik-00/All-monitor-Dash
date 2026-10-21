@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "id": "delivery",
+  "title": "CI/CD delivery",
+  "subtitle": "Commit, scan, image promotion, then Argo CD reconciliation. Trace is a local visualization, not a deployment trigger.",
+  "kind": "devops-tool-workflow",
+  "status": "configured-design",
+  "canvas": {
+    "width": 1480,
+    "height": 1260
+  },
+  "groups": [],
+  "nodes": [
+    {
+      "id": "github",
+      "tool": "github",
+      "label": "GitHub",
+      "x": 80,
+      "y": 160,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Source"
+    },
+    {
+      "id": "github-actions",
+      "tool": "github-actions",
+      "label": "GitHub Actions",
+      "x": 350,
+      "y": 160,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "docker",
+      "tool": "docker",
+      "label": "Docker",
+      "x": 620,
+      "y": 160,
+      "width": 166,
+      "height": 88,
+      "codePath": "Dockerfile",
+      "caption": "Delivery"
+    },
+    {
+      "id": "trivy",
+      "tool": "trivy",
+      "label": "Trivy",
+      "x": 890,
+      "y": 160,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "registry",
+      "tool": "registry",
+      "label": "GHCR",
+      "x": 1160,
+      "y": 160,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "helm",
+      "tool": "helm",
+      "label": "Helm",
+      "x": 350,
+      "y": 480,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/helm/control-api/Chart.yaml",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "argocd",
+      "tool": "argocd",
+      "label": "Argo CD",
+      "x": 620,
+      "y": 480,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/gitops/platform/templates/applications.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "kubernetes",
+      "tool": "kubernetes",
+      "label": "Kubernetes",
+      "x": 890,
+      "y": 480,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/local/k3d.yaml",
+      "caption": "Runtime"
+    },
+    {
+      "id": "control-api",
+      "tool": "control-api",
+      "label": "Control API",
+      "x": 1160,
+      "y": 480,
+      "width": 166,
+      "height": 88,
+      "codePath": "apps/control-api/src/app.mjs",
+      "caption": "Runtime"
+    }
+  ],
+  "edges": [
+    {
+      "id": "github--github-actions",
+      "source": "github",
+      "target": "github-actions",
+      "label": "PR / push",
+      "kind": "delivery"
+    },
+    {
+      "id": "github-actions--docker",
+      "source": "github-actions",
+      "target": "docker",
+      "label": "build",
+      "kind": "delivery"
+    },
+    {
+      "id": "docker--trivy",
+      "source": "docker",
+      "target": "trivy",
+      "label": "security gate",
+      "kind": "security"
+    },
+    {
+      "id": "trivy--registry",
+      "source": "trivy",
+      "target": "registry",
+      "label": "push",
+      "kind": "delivery"
+    },
+    {
+      "id": "github--helm",
+      "source": "github",
+      "target": "helm",
+      "label": "promote image in Git",
+      "kind": "delivery"
+    },
+    {
+      "id": "helm--argocd",
+      "source": "helm",
+      "target": "argocd",
+      "label": "pull chart + values",
+      "kind": "delivery"
+    },
+    {
+      "id": "argocd--kubernetes",
+      "source": "argocd",
+      "target": "kubernetes",
+      "label": "manual sync",
+      "kind": "delivery"
+    },
+    {
+      "id": "registry--kubernetes",
+      "source": "registry",
+      "target": "kubernetes",
+      "label": "pull OCI image",
+      "kind": "delivery"
+    },
+    {
+      "id": "kubernetes--control-api",
+      "source": "kubernetes",
+      "target": "control-api",
+      "label": "run release",
+      "kind": "delivery"
+    }
+  ]
+}

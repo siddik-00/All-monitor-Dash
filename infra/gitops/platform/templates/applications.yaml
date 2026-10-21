@@ -1,0 +1,61 @@
+{{- $root := . -}}
+{{- $repo := required "Set repoURL to your Git repository containing this codebase" .Values.repoURL -}}
+{{- range $name, $component := .Values.components }}
+{{- if $component.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $name }}
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: devops-platform
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ $component.wave | quote }}
+spec:
+  project: devops-platform
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $component.namespace }}
+  sources:
+    - repoURL: {{ $component.repo | quote }}
+      chart: {{ $component.chart }}
+      targetRevision: {{ $component.version | quote }}
+      helm:
+        releaseName: {{ $component.releaseName | default $name }}
+        valueFiles:
+          - {{ printf "$values/%s" $component.valuesFile | quote }}
+    - repoURL: {{ $repo | quote }}
+      targetRevision: {{ $root.Values.gitRevision | quote }}
+      ref: values
+  syncPolicy:
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    # A reviewed argocd app sync starts reconciliation; no automatic pruning.
+{{- end }}
+{{- end }}
+{{- if .Values.application.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: control-api
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: devops-platform
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: devops-platform
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-system
+  source:
+    repoURL: {{ $repo | quote }}
+    targetRevision: {{ .Values.gitRevision | quote }}
+    path: infra/helm/control-api
+    helm:
+      releaseName: control-api
+      valueFiles: [../../environments/local/control-api.yaml]
+  syncPolicy:
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+{{- end }}

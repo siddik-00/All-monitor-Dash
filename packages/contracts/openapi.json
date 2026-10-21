@@ -1,0 +1,1431 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DevOps workflow and integration API",
+    "version": "2.0.0",
+    "description": "API-only backend and machine-readable system/code/deployment workflow models."
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/cluster/snapshot": {
+      "get": {
+        "operationId": "getOverview",
+        "summary": "Collect a complete cluster snapshot",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Namespace"
+          },
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot, possibly with partial source data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/cluster/nodes": {
+      "get": {
+        "operationId": "getNodes",
+        "summary": "Cluster-wide nodes and allocatable capacity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Namespace"
+          },
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot envelope plus nodes array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "nodes"
+                      ],
+                      "properties": {
+                        "nodes": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Node"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cluster/workloads": {
+      "get": {
+        "operationId": "getWorkloads",
+        "summary": "Deployment availability and observed pod restarts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Namespace"
+          },
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot envelope plus workloads array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "workloads"
+                      ],
+                      "properties": {
+                        "workloads": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Workload"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cluster/events": {
+      "get": {
+        "operationId": "getEvents",
+        "summary": "At most 100 recent Kubernetes events",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Namespace"
+          },
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot envelope plus events array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "events"
+                      ],
+                      "properties": {
+                        "events": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Event"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "operationId": "getAlerts",
+        "summary": "Active alerts from Prometheus",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Namespace"
+          },
+          {
+            "$ref": "#/components/parameters/Range"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot envelope plus alerts array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "alerts"
+                      ],
+                      "properties": {
+                        "alerts": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Alert"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pods/logs": {
+      "get": {
+        "operationId": "getPodLogs",
+        "summary": "Bounded pod logs; requires explicit server and RBAC opt-in",
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 63
+            },
+            "description": "A specific namespace; all is rejected"
+          },
+          {
+            "name": "pod",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 253
+            }
+          },
+          {
+            "name": "container",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 253
+            }
+          },
+          {
+            "name": "tail",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "UTF-8 log text in a JSON envelope, bounded to 64 KiB upstream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "mode",
+                    "namespace",
+                    "pod",
+                    "logs",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "const": "live"
+                    },
+                    "namespace": {
+                      "type": "string"
+                    },
+                    "pod": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "health",
+        "security": [],
+        "summary": "Process liveness",
+        "responses": {
+          "200": {
+            "description": "Process is alive"
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "readiness",
+        "security": [],
+        "summary": "Process readiness; upstream health is in snapshot warnings",
+        "responses": {
+          "200": {
+            "description": "Gateway process is ready"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "metrics",
+        "security": [],
+        "summary": "Internal Prometheus scrape endpoint",
+        "responses": {
+          "200": {
+            "description": "Prometheus text exposition",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/integrations": {
+      "get": {
+        "summary": "Read integrations",
+        "responses": {
+          "200": {
+            "description": "JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Envelope"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "integrations"
+                      ],
+                      "properties": {
+                        "integrations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "connected",
+                                  "unavailable",
+                                  "sample"
+                                ]
+                              },
+                              "detail": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/topology": {
+      "get": {
+        "summary": "Read topology",
+        "responses": {
+          "200": {
+            "description": "Read-only JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topology"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/workflows": {
+      "get": {
+        "summary": "Read workflows",
+        "responses": {
+          "200": {
+            "description": "JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "workflows"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "architecture-workflow-catalog"
+                    },
+                    "workflows": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{id}": {
+      "get": {
+        "summary": "Read {id}",
+        "responses": {
+          "200": {
+            "description": "JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "workflow"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "architecture-workflow"
+                    },
+                    "workflow": {
+                      "$ref": "#/components/schemas/Workflow"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "system",
+                "delivery",
+                "infrastructure",
+                "observability",
+                "api-request"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/openapi": {
+      "get": {
+        "summary": "Read openapi",
+        "responses": {
+          "200": {
+            "description": "JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/toolchain": {
+      "get": {
+        "operationId": "getToolchain",
+        "summary": "DevOps tool catalog and observed probe status",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Read-only JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Toolchain"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Operator bearer token required."
+          }
+        }
+      }
+    },
+    "/api/v1/tools/{id}/status": {
+      "get": {
+        "operationId": "getToolStatus",
+        "summary": "Read-only status for a configured DevOps integration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Read-only JSON result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tool"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown tool."
+          },
+          "401": {
+            "description": "Operator bearer token required."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Separate operator API token, at least 32 characters; never a Kubernetes service-account token"
+      }
+    },
+    "parameters": {
+      "Namespace": {
+        "name": "namespace",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "default": "all",
+          "maxLength": 63
+        },
+        "description": "all or one namespace; does not scope node metrics and is not an authorization boundary"
+      },
+      "Range": {
+        "name": "range",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "1h",
+            "6h",
+            "24h"
+          ],
+          "default": "1h"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Request or upstream error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "required": [
+          "mode",
+          "cluster",
+          "timestamp",
+          "namespace",
+          "warnings"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "demo"
+            ]
+          },
+          "cluster": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Snapshot": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Envelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "summary",
+              "namespaces",
+              "nodes",
+              "workloads",
+              "pods",
+              "events",
+              "alerts",
+              "series",
+              "capabilities",
+              "integrations"
+            ],
+            "properties": {
+              "range": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "namespaces": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "summary": {
+                "type": "object",
+                "required": [
+                  "readyNodes",
+                  "totalNodes",
+                  "readyPods",
+                  "totalPods",
+                  "workloads",
+                  "cpuPercent",
+                  "memoryPercent",
+                  "firingAlerts"
+                ],
+                "properties": {
+                  "readyNodes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "totalNodes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "readyPods": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "totalPods": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "workloads": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "cpuPercent": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "memoryPercent": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "firingAlerts": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "nodes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Node"
+                }
+              },
+              "workloads": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Workload"
+                }
+              },
+              "pods": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Pod"
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              },
+              "alerts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Alert"
+                }
+              },
+              "series": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "time",
+                    "cpu",
+                    "memory"
+                  ],
+                  "properties": {
+                    "time": {
+                      "type": "number"
+                    },
+                    "cpu": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "memory": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "capabilities": {
+                "type": "object",
+                "properties": {
+                  "logs": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "integrations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "status"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "connected",
+                        "unavailable",
+                        "sample"
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "collectionMs": {
+                "type": "number"
+              }
+            }
+          }
+        ]
+      },
+      "Node": {
+        "type": "object",
+        "required": [
+          "name",
+          "ready",
+          "pressure",
+          "cpuCapacity",
+          "memoryGiB"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "cpuCapacity": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Allocatable CPU cores"
+          },
+          "memoryGiB": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Allocatable GiB"
+          },
+          "version": {
+            "type": "string"
+          },
+          "pressure": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "age": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          }
+        }
+      },
+      "Workload": {
+        "type": "object",
+        "required": [
+          "name",
+          "namespace",
+          "desired",
+          "ready",
+          "status",
+          "restarts"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "desired": {
+            "type": "integer"
+          },
+          "ready": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Healthy",
+              "Degraded"
+            ]
+          },
+          "restarts": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "age": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "Pod": {
+        "type": "object",
+        "required": [
+          "name",
+          "namespace",
+          "deployment",
+          "status",
+          "ready",
+          "restarts"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "deployment": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "restarts": {
+            "type": "integer"
+          },
+          "node": {
+            "type": "string"
+          },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "phase": {
+            "type": "string"
+          },
+          "terminating": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "Alert": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "activeAt": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkflowNode": {
+        "type": "object",
+        "required": [
+          "id",
+          "tool",
+          "label",
+          "x",
+          "y"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tool": {
+            "type": "string",
+            "enum": [
+              "github",
+              "github-actions",
+              "docker",
+              "trivy",
+              "registry",
+              "terraform",
+              "ansible",
+              "kubernetes",
+              "helm",
+              "argocd",
+              "cert-manager",
+              "external-secrets",
+              "kyverno",
+              "prometheus",
+              "alertmanager",
+              "grafana",
+              "alloy",
+              "loki",
+              "opentelemetry",
+              "tempo",
+              "velero",
+              "control-api"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "codePath": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkflowEdge": {
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target",
+          "label",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "delivery",
+              "infrastructure",
+              "security",
+              "api",
+              "metrics",
+              "logs",
+              "traces",
+              "recovery"
+            ]
+          }
+        }
+      },
+      "Workflow": {
+        "type": "object",
+        "required": [
+          "schemaVersion",
+          "id",
+          "title",
+          "kind",
+          "nodes",
+          "edges"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": 2
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "kind": {
+            "const": "devops-tool-workflow"
+          },
+          "status": {
+            "type": "string"
+          },
+          "canvas": {
+            "type": "object"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowEdge"
+            }
+          }
+        }
+      },
+      "ToolObservation": {
+        "type": "object",
+        "required": [
+          "status",
+          "checkedAt",
+          "detail"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "definition",
+              "sample",
+              "not-configured",
+              "available",
+              "unavailable"
+            ]
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "applications": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Tool": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "configPaths",
+          "statusEndpoint",
+          "observation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "short": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "installedVia": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "statusEndpoint": {
+            "type": "string"
+          },
+          "configPaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "observation": {
+            "$ref": "#/components/schemas/ToolObservation"
+          }
+        }
+      },
+      "Toolchain": {
+        "type": "object",
+        "required": [
+          "schemaVersion",
+          "kind",
+          "mode",
+          "timestamp",
+          "tools"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          },
+          "kind": {
+            "const": "devops-toolchain"
+          },
+          "mode": {
+            "enum": [
+              "demo",
+              "live"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tool"
+            }
+          }
+        }
+      },
+      "Topology": {
+        "type": "object",
+        "required": [
+          "mode",
+          "kind",
+          "workflow",
+          "observations",
+          "timestamp"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "demo",
+              "live"
+            ]
+          },
+          "kind": {
+            "const": "devops-tool-topology"
+          },
+          "workflow": {
+            "$ref": "#/components/schemas/Workflow"
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "nodeId",
+                "status",
+                "checkedAt",
+                "detail"
+              ],
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "definition",
+                    "sample",
+                    "not-configured",
+                    "available",
+                    "unavailable"
+                  ]
+                },
+                "checkedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "applications": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

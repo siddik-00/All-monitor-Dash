@@ -1,0 +1,28 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: platform-pod-baseline
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-nonroot-and-limits
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [platform-system]
+      validate:
+        message: Application pods should run as non-root, disable privilege escalation and define resource limits.
+        pattern:
+          spec:
+            securityContext:
+              runAsNonRoot: true
+            containers:
+              - name: '*'
+                securityContext:
+                  allowPrivilegeEscalation: false
+                resources:
+                  limits:
+                    memory: '?*'
+                    cpu: '?*'

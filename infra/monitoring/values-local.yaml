@@ -1,0 +1,32 @@
+# Local storage is disposable when the k3d cluster is deleted.
+grafana:
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    retentionSize: 1GB
+    storageSpec: null
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
+alertmanager:
+  alertmanagerSpec:
+    storage: null
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

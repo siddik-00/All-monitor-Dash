@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "id": "api-request",
+  "title": "API integration flow",
+  "subtitle": "Client -> authenticated Control API -> server-side tools -> normalized JSON. Tool tokens stay on the server.",
+  "kind": "devops-tool-workflow",
+  "status": "configured-design",
+  "canvas": {
+    "width": 1480,
+    "height": 1260
+  },
+  "groups": [],
+  "nodes": [
+    {
+      "id": "control-api",
+      "tool": "control-api",
+      "label": "Control API",
+      "x": 80,
+      "y": 380,
+      "width": 166,
+      "height": 88,
+      "codePath": "apps/control-api/src/app.mjs",
+      "caption": "Runtime"
+    },
+    {
+      "id": "kubernetes",
+      "tool": "kubernetes",
+      "label": "Kubernetes",
+      "x": 430,
+      "y": 130,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/local/k3d.yaml",
+      "caption": "Runtime"
+    },
+    {
+      "id": "argocd",
+      "tool": "argocd",
+      "label": "Argo CD",
+      "x": 780,
+      "y": 130,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/gitops/platform/templates/applications.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "prometheus",
+      "tool": "prometheus",
+      "label": "Prometheus",
+      "x": 430,
+      "y": 450,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "grafana",
+      "tool": "grafana",
+      "label": "Grafana",
+      "x": 780,
+      "y": 450,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "loki",
+      "tool": "loki",
+      "label": "Loki",
+      "x": 430,
+      "y": 770,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/loki-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "tempo",
+      "tool": "tempo",
+      "label": "Tempo",
+      "x": 780,
+      "y": 770,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/tempo-values.yaml",
+      "caption": "Observability"
+    }
+  ],
+  "edges": [
+    {
+      "id": "control-api--kubernetes",
+      "source": "control-api",
+      "target": "kubernetes",
+      "label": "Kubernetes service account",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--argocd",
+      "source": "control-api",
+      "target": "argocd",
+      "label": "GET /api/v1/applications",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--prometheus",
+      "source": "control-api",
+      "target": "prometheus",
+      "label": "GET /api/v1/query",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--grafana",
+      "source": "control-api",
+      "target": "grafana",
+      "label": "GET /api/health",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--loki",
+      "source": "control-api",
+      "target": "loki",
+      "label": "GET /ready",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--tempo",
+      "source": "control-api",
+      "target": "tempo",
+      "label": "GET /ready",
+      "kind": "api"
+    }
+  ]
+}

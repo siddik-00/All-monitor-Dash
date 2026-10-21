@@ -1,0 +1,1 @@
+Tool glyphs are from Simple Icons (https://simpleicons.org), distributed under CC0. Some tools use original letter monograms where an icon was unavailable. Brand names and trademarks belong to their respective owners. These glyphs identify integrations and do not imply endorsement.

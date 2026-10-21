@@ -1,0 +1,20 @@
+server:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+configs:
+  cm:
+    exec.enabled: "false"
+  rbac:
+    policy.default: role:readonly
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi

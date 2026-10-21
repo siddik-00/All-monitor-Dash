@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "control-api.name" . }}
+  labels:
+    {{- include "control-api.labels" . | nindent 4 }}
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "control-api.clusterRole" . }}
+rules:
+  - apiGroups: [""]
+    resources: [nodes, pods, namespaces, events]
+    verbs: [get, list]
+  - apiGroups: [apps]
+    resources: [deployments, replicasets]
+    verbs: [get, list]
+  - nonResourceURLs: [/version]
+    verbs: [get]
+  {{- if .Values.api.logsEnabled }}
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "control-api.clusterRole" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "control-api.clusterRole" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "control-api.name" . }}
+    namespace: {{ .Release.Namespace }}

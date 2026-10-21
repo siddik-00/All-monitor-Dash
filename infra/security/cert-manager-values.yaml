@@ -1,0 +1,7 @@
+crds:
+  enabled: true
+replicaCount: 1
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: false # Can be enabled once Prometheus CRDs exist.

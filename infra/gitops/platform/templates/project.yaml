@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: devops-platform
+  namespace: argocd
+spec:
+  description: Platform operators own cluster-scoped CRDs and controller releases.
+  sourceRepos:
+    - {{ required "repoURL is required" .Values.repoURL | quote }}
+    {{- range .Values.components }}
+    - {{ .repo | quote }}
+    {{- end }}
+  destinations:
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: cert-manager
+      server: https://kubernetes.default.svc
+    - namespace: external-secrets
+      server: https://kubernetes.default.svc
+    - namespace: kyverno
+      server: https://kubernetes.default.svc
+    - namespace: velero
+      server: https://kubernetes.default.svc
+    - namespace: platform-system
+      server: https://kubernetes.default.svc
+  # This project bootstraps cluster-wide controllers. Application developer
+  # access must use a separate project with namespace-scoped permissions.
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

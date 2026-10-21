@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "charts": {
+    "argo-cd": {
+      "version": "10.10.5",
+      "repo": "https://argoproj.github.io/argo-helm",
+      "sha256": "ba6447eeed42bc41d1f0527721047b236304e97669a7b6286d02be4a1644ba7a"
+    },
+    "kube-prometheus-stack": {
+      "version": "92.10.0",
+      "repo": "https://prometheus-community.github.io/helm-charts",
+      "sha256": "85240efc443d7c2525d72851ab9c7c550c7abdb892b70f768ab8e727d9c3c898"
+    },
+    "loki": {
+      "version": "7.3.0",
+      "repo": "https://grafana.github.io/helm-charts",
+      "sha256": "04a339f712d770a1f599f05fc0a5a3cde18e43914e49ae6a49f7171be86bcc09"
+    },
+    "alloy": {
+      "version": "1.14.0",
+      "repo": "https://grafana.github.io/helm-charts",
+      "sha256": "fdcc9e632068ca4900aac4ae54ff32023c4c2487e5b3527f9d9c934148a45c05"
+    },
+    "tempo": {
+      "version": "1.24.4",
+      "repo": "https://grafana.github.io/helm-charts",
+      "sha256": "f1f6e318d5bca3b5097cb676077796cdf8135beb2c1f71c4d14614ccf9b0081b"
+    },
+    "opentelemetry-collector": {
+      "version": "0.176.0",
+      "repo": "https://open-telemetry.github.io/opentelemetry-helm-charts",
+      "sha256": "8d3f0c6efd2ae33a8c843b189b86d9f93f52422bccbb5be35c5ac24154e24868"
+    },
+    "external-secrets": {
+      "version": "2.13.0",
+      "repo": "https://charts.external-secrets.io",
+      "sha256": "f693a96f0d929a07e000dd39e68b92a1a1343c5bc440ebab091b03da30bcac3a"
+    },
+    "kyverno": {
+      "version": "3.9.1",
+      "repo": "https://kyverno.github.io/kyverno",
+      "sha256": "7b7fe51a431b5b133b0ce7eb9dcb222b6a37fb967c163223cf480054ad14d752"
+    },
+    "velero": {
+      "version": "12.2.1",
+      "repo": "https://vmware-tanzu.github.io/helm-charts",
+      "sha256": "fe4acd70a0123c369e7af7064457b4ffdddebee413e2bb01976a4fe07c471773"
+    },
+    "cert-manager": {
+      "version": "v1.21.2",
+      "repo": "https://charts.jetstack.io",
+      "sha256": "73a56e1728edd6c99f1f31082618c3259d279a76b7ebd3d4bdc5475c2442d34a",
+      "oci": "oci://quay.io/jetstack/charts/cert-manager"
+    }
+  }
+}

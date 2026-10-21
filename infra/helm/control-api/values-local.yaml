@@ -1,0 +1,11 @@
+replicaCount: 1
+pdb:
+  enabled: false
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+clusterName: control-api-lab

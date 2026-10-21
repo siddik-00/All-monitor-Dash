@@ -1,0 +1,20 @@
+{
+  "name": "devops-toolchain-workflow",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Editable DevOps tool workflow canvas, read-only integration API, and infrastructure code",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node apps/control-api/src/server.mjs",
+    "demo": "node scripts/demo.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "dev": "node scripts/demo.mjs",
+    "validate": "bash scripts/validate.sh",
+    "validate:infra": "python3 scripts/validate_infra.py",
+    "verify:charts": "python3 scripts/render_toolchain.py"
+  }
+}

@@ -1,0 +1,30 @@
+# Disabled in the platform catalog until you set the real bucket, region and
+# credentials. Install this optional profile only after testing a restore.
+credentials:
+  useSecret: true
+  existingSecret: velero-cloud-credentials
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.13.1
+    volumeMounts:
+      - name: plugins
+        mountPath: /target
+snapshotsEnabled: false
+deployNodeAgent: true
+configuration:
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: REPLACE_WITH_BACKUP_BUCKET
+      default: true
+      config:
+        region: REPLACE_WITH_REGION
+  volumeSnapshotLocation: []
+schedules:
+  platform-daily:
+    disabled: false
+    schedule: '0 2 * * *'
+    template:
+      ttl: 168h
+      includedNamespaces: [platform-system]
+      defaultVolumesToFsBackup: true

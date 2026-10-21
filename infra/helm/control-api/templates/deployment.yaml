@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "control-api.name" . }}
+  labels:
+    {{- include "control-api.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "control-api.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "control-api.selector" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "control-api.name" . }}
+      terminationGracePeriodSeconds: 20
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gateway
+          {{- $repository := required "Set image.repository to your built DevOps workflow image" .Values.image.repository }}
+          {{- if .Values.image.digest }}
+          image: {{ printf "%s@%s" $repository .Values.image.digest | quote }}
+          {{- else }}
+          image: {{ printf "%s:%s" $repository (required "Set image.tag to an immutable commit tag" .Values.image.tag) | quote }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: DEMO_MODE
+              value: "false"
+            - name: HOST
+              value: "0.0.0.0"
+            - name: CLUSTER_NAME
+              value: {{ .Values.clusterName | quote }}
+            - name: API_TOKEN_FILE
+              value: /var/run/secrets/control-api/api-token
+            - name: PROMETHEUS_URL
+              value: {{ .Values.api.prometheusUrl | quote }}
+            - name: ALLOWED_ORIGINS
+              value: {{ join "," .Values.api.allowedOrigins | quote }}
+            - name: LOGS_ENABLED
+              value: {{ .Values.api.logsEnabled | quote }}
+            - name: REQUEST_LOGS
+              value: "true"
+            - name: ARGOCD_URL
+              value: {{ .Values.tools.argocdUrl | quote }}
+            - name: ARGOCD_CA_FILE
+              value: {{ .Values.tools.argocdCAFile | quote }}
+            - name: GRAFANA_URL
+              value: {{ .Values.tools.grafanaUrl | quote }}
+            - name: LOKI_URL
+              value: {{ .Values.tools.lokiUrl | quote }}
+            - name: TEMPO_URL
+              value: {{ .Values.tools.tempoUrl | quote }}
+            - name: ALERTMANAGER_URL
+              value: {{ .Values.tools.alertmanagerUrl | quote }}
+            - name: ALLOY_URL
+              value: {{ .Values.tools.alloyUrl | quote }}
+            - name: OTEL_HEALTH_URL
+              value: {{ .Values.tools.otelHealthUrl | quote }}
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: {{ .Values.tools.otlpTracesEndpoint | quote }}
+            {{- if .Values.tools.upstreamSecret }}
+            - name: ARGOCD_TOKEN_FILE
+              value: /var/run/secrets/toolchain/argocd-token
+            - name: GRAFANA_TOKEN_FILE
+              value: /var/run/secrets/toolchain/grafana-token
+            {{- end }}
+          volumeMounts:
+            - name: api-token
+              mountPath: /var/run/secrets/control-api
+              readOnly: true
+            {{- if .Values.tools.upstreamSecret }}
+            - name: upstream-tokens
+              mountPath: /var/run/secrets/toolchain
+              readOnly: true
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: api-token
+          secret:
+            secretName: {{ .Values.api.existingSecret }}
+            defaultMode: 0440
+            items:
+              - key: {{ .Values.api.secretKey }}
+                path: api-token
+        {{- if .Values.tools.upstreamSecret }}
+        - name: upstream-tokens
+          secret:
+            secretName: {{ .Values.tools.upstreamSecret }}
+            defaultMode: 0440
+        {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    {{- include "control-api.selector" . | nindent 20 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,11 @@
+replicaCount: 1
+image:
+  repository: ''
+  tag: ''
+clusterName: devops-workflow-local
+pdb:
+  enabled: false
+serviceMonitor:
+  enabled: true
+api:
+  existingSecret: control-api-auth

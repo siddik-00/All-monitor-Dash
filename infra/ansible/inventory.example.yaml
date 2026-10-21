@@ -1,0 +1,7 @@
+all:
+  children:
+    k8s_hosts:
+      hosts:
+        example_host:
+          ansible_host: 192.0.2.10 # Documentation IP; replace with an existing host.
+          ansible_user: ubuntu

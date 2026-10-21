@@ -1,0 +1,85 @@
+name: Validate, scan, and publish
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: control-api-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: azure/setup-helm@v4.3.0
+        with:
+          version: v3.18.6
+      - run: python3 -m pip install PyYAML==6.0.3
+      - run: bash scripts/validate.sh
+      - name: Scan infrastructure configuration
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: infra/
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - uses: hashicorp/setup-terraform@v3
+      - name: Validate Terraform bootstrap
+        run: |
+          terraform -chdir=infra/terraform/bootstrap fmt -check
+          terraform -chdir=infra/terraform/bootstrap init -backend=false
+          terraform -chdir=infra/terraform/bootstrap validate
+      - name: Validate Ansible host role
+        run: |
+          python3 -m pip install ansible-core==2.19.3
+          cd infra/ansible
+          ansible-playbook --syntax-check site.yaml
+      - name: Render pinned platform charts
+        run: npm run verify:charts
+  image:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Image metadata
+        id: image
+        shell: bash
+        run: |
+          echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build locally before scanning
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
+      - name: Scan the exact built image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Publish the scanned commit tag
+        env:
+          CONTROL_API_IMAGE: ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
+        run: docker push "$CONTROL_API_IMAGE"
+      # CD is pull based. Promote the published image tag in Git and sync Argo CD.
+      # No Kubernetes administrator token is given to this workflow.

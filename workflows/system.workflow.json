@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 2,
+  "id": "system",
+  "title": "DevOps toolchain",
+  "subtitle": "Source, delivery, infrastructure, security, telemetry and recovery. Connections describe API and automation contracts.",
+  "kind": "devops-tool-workflow",
+  "status": "configured-design",
+  "canvas": {
+    "width": 1480,
+    "height": 1260
+  },
+  "groups": [
+    {
+      "id": "delivery",
+      "label": "SOURCE / BUILD / SUPPLY CHAIN",
+      "x": 40,
+      "y": 48,
+      "width": 1350,
+      "height": 160
+    },
+    {
+      "id": "infra",
+      "label": "INFRASTRUCTURE / GITOPS / RUNTIME",
+      "x": 40,
+      "y": 308,
+      "width": 1350,
+      "height": 160
+    },
+    {
+      "id": "security",
+      "label": "CERTIFICATES / SECRETS / POLICY / RECOVERY",
+      "x": 40,
+      "y": 568,
+      "width": 1350,
+      "height": 160
+    },
+    {
+      "id": "observe",
+      "label": "METRICS / LOGS / TRACES",
+      "x": 40,
+      "y": 828,
+      "width": 1350,
+      "height": 410
+    }
+  ],
+  "nodes": [
+    {
+      "id": "github",
+      "tool": "github",
+      "label": "GitHub",
+      "x": 80,
+      "y": 100,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Source"
+    },
+    {
+      "id": "github-actions",
+      "tool": "github-actions",
+      "label": "GitHub Actions",
+      "x": 350,
+      "y": 100,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "docker",
+      "tool": "docker",
+      "label": "Docker",
+      "x": 620,
+      "y": 100,
+      "width": 166,
+      "height": 88,
+      "codePath": "Dockerfile",
+      "caption": "Delivery"
+    },
+    {
+      "id": "trivy",
+      "tool": "trivy",
+      "label": "Trivy",
+      "x": 890,
+      "y": 100,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "registry",
+      "tool": "registry",
+      "label": "GHCR",
+      "x": 1160,
+      "y": 100,
+      "width": 166,
+      "height": 88,
+      "codePath": ".github/workflows/ci.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "ansible",
+      "tool": "ansible",
+      "label": "Ansible",
+      "x": 80,
+      "y": 360,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/ansible/site.yaml",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "terraform",
+      "tool": "terraform",
+      "label": "Terraform",
+      "x": 350,
+      "y": 360,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/terraform/bootstrap/main.tf",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "helm",
+      "tool": "helm",
+      "label": "Helm",
+      "x": 620,
+      "y": 360,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/helm/control-api/Chart.yaml",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "argocd",
+      "tool": "argocd",
+      "label": "Argo CD",
+      "x": 890,
+      "y": 360,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/gitops/platform/templates/applications.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "kubernetes",
+      "tool": "kubernetes",
+      "label": "Kubernetes",
+      "x": 1160,
+      "y": 360,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/local/k3d.yaml",
+      "caption": "Runtime"
+    },
+    {
+      "id": "cert-manager",
+      "tool": "cert-manager",
+      "label": "cert-manager",
+      "x": 80,
+      "y": 620,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/cert-manager-values.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "external-secrets",
+      "tool": "external-secrets",
+      "label": "External Secrets",
+      "x": 350,
+      "y": 620,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/external-secrets-values.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "kyverno",
+      "tool": "kyverno",
+      "label": "Kyverno",
+      "x": 620,
+      "y": 620,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/policies.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "control-api",
+      "tool": "control-api",
+      "label": "Control API",
+      "x": 890,
+      "y": 620,
+      "width": 166,
+      "height": 88,
+      "codePath": "apps/control-api/src/app.mjs",
+      "caption": "Runtime"
+    },
+    {
+      "id": "velero",
+      "tool": "velero",
+      "label": "Velero",
+      "x": 1160,
+      "y": 620,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/backup/values.yaml",
+      "caption": "Recovery"
+    },
+    {
+      "id": "prometheus",
+      "tool": "prometheus",
+      "label": "Prometheus",
+      "x": 80,
+      "y": 880,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "alertmanager",
+      "tool": "alertmanager",
+      "label": "Alertmanager",
+      "x": 350,
+      "y": 880,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "grafana",
+      "tool": "grafana",
+      "label": "Grafana",
+      "x": 620,
+      "y": 880,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "loki",
+      "tool": "loki",
+      "label": "Loki",
+      "x": 890,
+      "y": 880,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/loki-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "alloy",
+      "tool": "alloy",
+      "label": "Grafana Alloy",
+      "x": 1160,
+      "y": 880,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/alloy-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "opentelemetry",
+      "tool": "opentelemetry",
+      "label": "OpenTelemetry",
+      "x": 890,
+      "y": 1100,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/otel-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "tempo",
+      "tool": "tempo",
+      "label": "Tempo",
+      "x": 620,
+      "y": 1100,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/tempo-values.yaml",
+      "caption": "Observability"
+    }
+  ],
+  "edges": [
+    {
+      "id": "github--github-actions",
+      "source": "github",
+      "target": "github-actions",
+      "label": "PR / commit",
+      "kind": "delivery"
+    },
+    {
+      "id": "github-actions--docker",
+      "source": "github-actions",
+      "target": "docker",
+      "label": "build",
+      "kind": "delivery"
+    },
+    {
+      "id": "docker--trivy",
+      "source": "docker",
+      "target": "trivy",
+      "label": "scan image",
+      "kind": "security"
+    },
+    {
+      "id": "trivy--registry",
+      "source": "trivy",
+      "target": "registry",
+      "label": "publish passed image",
+      "kind": "delivery"
+    },
+    {
+      "id": "ansible--kubernetes",
+      "source": "ansible",
+      "target": "kubernetes",
+      "label": "host prerequisites",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "terraform--argocd",
+      "source": "terraform",
+      "target": "argocd",
+      "label": "bootstrap release",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "helm--argocd",
+      "source": "helm",
+      "target": "argocd",
+      "label": "chart definitions",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "github--argocd",
+      "source": "github",
+      "target": "argocd",
+      "label": "pull desired state",
+      "kind": "delivery"
+    },
+    {
+      "id": "argocd--kubernetes",
+      "source": "argocd",
+      "target": "kubernetes",
+      "label": "sync manifests",
+      "kind": "delivery"
+    },
+    {
+      "id": "registry--kubernetes",
+      "source": "registry",
+      "target": "kubernetes",
+      "label": "pull image",
+      "kind": "delivery"
+    },
+    {
+      "id": "cert-manager--control-api",
+      "source": "cert-manager",
+      "target": "control-api",
+      "label": "TLS secret",
+      "kind": "security"
+    },
+    {
+      "id": "external-secrets--control-api",
+      "source": "external-secrets",
+      "target": "control-api",
+      "label": "API token secret",
+      "kind": "security"
+    },
+    {
+      "id": "kyverno--kubernetes",
+      "source": "kyverno",
+      "target": "kubernetes",
+      "label": "admission policy",
+      "kind": "security"
+    },
+    {
+      "id": "kubernetes--velero",
+      "source": "kubernetes",
+      "target": "velero",
+      "label": "backup data",
+      "kind": "recovery"
+    },
+    {
+      "id": "kubernetes--control-api",
+      "source": "kubernetes",
+      "target": "control-api",
+      "label": "read resources",
+      "kind": "api"
+    },
+    {
+      "id": "control-api--prometheus",
+      "source": "control-api",
+      "target": "prometheus",
+      "label": "/metrics scrape",
+      "kind": "metrics"
+    },
+    {
+      "id": "prometheus--alertmanager",
+      "source": "prometheus",
+      "target": "alertmanager",
+      "label": "alerts",
+      "kind": "metrics"
+    },
+    {
+      "id": "prometheus--grafana",
+      "source": "prometheus",
+      "target": "grafana",
+      "label": "PromQL",
+      "kind": "metrics"
+    },
+    {
+      "id": "kubernetes--alloy",
+      "source": "kubernetes",
+      "target": "alloy",
+      "label": "pod logs",
+      "kind": "logs"
+    },
+    {
+      "id": "alloy--loki",
+      "source": "alloy",
+      "target": "loki",
+      "label": "push logs",
+      "kind": "logs"
+    },
+    {
+      "id": "loki--grafana",
+      "source": "loki",
+      "target": "grafana",
+      "label": "LogQL",
+      "kind": "logs"
+    },
+    {
+      "id": "control-api--opentelemetry",
+      "source": "control-api",
+      "target": "opentelemetry",
+      "label": "OTLP spans",
+      "kind": "traces"
+    },
+    {
+      "id": "opentelemetry--tempo",
+      "source": "opentelemetry",
+      "target": "tempo",
+      "label": "gRPC spans",
+      "kind": "traces"
+    },
+    {
+      "id": "tempo--grafana",
+      "source": "tempo",
+      "target": "grafana",
+      "label": "TraceQL",
+      "kind": "traces"
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "Source",
+      "color": "#252d3a",
+      "short": "GH",
+      "configPaths": [
+        ".github/workflows/ci.yaml"
+      ],
+      "description": "Pull requests, source history and versioned infrastructure.",
+      "installedVia": "Git",
+      "icon": "/canvas/icons/github.svg",
+      "statusEndpoint": "/api/v1/tools/github/status"
+    },
+    {
+      "id": "github-actions",
+      "name": "GitHub Actions",
+      "category": "Delivery",
+      "color": "#2684ff",
+      "short": "CI",
+      "configPaths": [
+        ".github/workflows/ci.yaml"
+      ],
+      "description": "Runs tests, builds, security checks and publishes the scanned image.",
+      "installedVia": "CI runner",
+      "icon": "/canvas/icons/github-actions.svg",
+      "statusEndpoint": "/api/v1/tools/github-actions/status"
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "category": "Delivery",
+      "color": "#2496ed",
+      "short": "D",
+      "configPaths": [
+        "Dockerfile"
+      ],
+      "description": "Packages the workflow API and canvas in a non-root image.",
+      "installedVia": "CI / local",
+      "icon": "/canvas/icons/docker.svg",
+      "statusEndpoint": "/api/v1/tools/docker/status"
+    },
+    {
+      "id": "trivy",
+      "name": "Trivy",
+      "category": "Security",
+      "color": "#249f9c",
+      "short": "TV",
+      "configPaths": [
+        ".github/workflows/ci.yaml"
+      ],
+      "description": "Scans container images and infrastructure before publication.",
+      "installedVia": "CI action",
+      "icon": "/canvas/icons/trivy.svg",
+      "statusEndpoint": "/api/v1/tools/trivy/status"
+    },
+    {
+      "id": "registry",
+      "name": "GHCR",
+      "category": "Delivery",
+      "color": "#6746cb",
+      "short": "OCI",
+      "configPaths": [
+        ".github/workflows/ci.yaml"
+      ],
+      "description": "Stores immutable commit-tagged OCI images.",
+      "installedVia": "GitHub Packages",
+      "icon": "/canvas/icons/registry.svg",
+      "statusEndpoint": "/api/v1/tools/registry/status"
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "category": "Infrastructure",
+      "color": "#7b42bc",
+      "short": "TF",
+      "configPaths": [
+        "infra/terraform/bootstrap/main.tf"
+      ],
+      "description": "Installs the Argo CD bootstrap Helm release into an existing cluster.",
+      "installedVia": "CLI",
+      "icon": "/canvas/icons/terraform.svg",
+      "statusEndpoint": "/api/v1/tools/terraform/status"
+    },
+    {
+      "id": "ansible",
+      "name": "Ansible",
+      "category": "Infrastructure",
+      "color": "#e24646",
+      "short": "A",
+      "configPaths": [
+        "infra/ansible/site.yaml"
+      ],
+      "description": "Prepares existing Ubuntu Kubernetes hosts.",
+      "installedVia": "CLI",
+      "icon": "/canvas/icons/ansible.svg",
+      "statusEndpoint": "/api/v1/tools/ansible/status"
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "category": "Runtime",
+      "color": "#326ce5",
+      "short": "K8s",
+      "configPaths": [
+        "infra/local/k3d.yaml"
+      ],
+      "description": "Schedules workloads; exposes the resource API consumed by Control API.",
+      "installedVia": "k3d / existing cluster",
+      "icon": "/canvas/icons/kubernetes.svg",
+      "statusEndpoint": "/api/v1/tools/kubernetes/status"
+    },
+    {
+      "id": "helm",
+      "name": "Helm",
+      "category": "Infrastructure",
+      "color": "#0f597b",
+      "short": "H",
+      "configPaths": [
+        "infra/helm/control-api/Chart.yaml"
+      ],
+      "description": "Renders repeatable application and platform configurations.",
+      "installedVia": "CLI / Argo CD",
+      "icon": "/canvas/icons/helm.svg",
+      "statusEndpoint": "/api/v1/tools/helm/status"
+    },
+    {
+      "id": "argocd",
+      "name": "Argo CD",
+      "category": "Delivery",
+      "color": "#ed704b",
+      "short": "Ar",
+      "configPaths": [
+        "infra/gitops/platform/templates/applications.yaml"
+      ],
+      "description": "Pulls desired state from Git and synchronizes reviewed releases.",
+      "installedVia": "Terraform",
+      "icon": "/canvas/icons/argocd.svg",
+      "statusEndpoint": "/api/v1/tools/argocd/status"
+    },
+    {
+      "id": "cert-manager",
+      "name": "cert-manager",
+      "category": "Security",
+      "color": "#326ce5",
+      "short": "TLS",
+      "configPaths": [
+        "infra/security/cert-manager-values.yaml"
+      ],
+      "description": "Manages certificates; a local CA example is included.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/cert-manager.svg",
+      "statusEndpoint": "/api/v1/tools/cert-manager/status"
+    },
+    {
+      "id": "external-secrets",
+      "name": "External Secrets",
+      "category": "Security",
+      "color": "#7366d3",
+      "short": "ES",
+      "configPaths": [
+        "infra/security/external-secrets-values.yaml"
+      ],
+      "description": "Reconciles an operator-created source secret into the API namespace.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/external-secrets.svg",
+      "statusEndpoint": "/api/v1/tools/external-secrets/status"
+    },
+    {
+      "id": "kyverno",
+      "name": "Kyverno",
+      "category": "Security",
+      "color": "#cf6f31",
+      "short": "KY",
+      "configPaths": [
+        "infra/security/policies.yaml"
+      ],
+      "description": "Audits application container security and resource limits.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/kyverno.svg",
+      "statusEndpoint": "/api/v1/tools/kyverno/status"
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "category": "Observability",
+      "color": "#e6522c",
+      "short": "P",
+      "configPaths": [
+        "infra/monitoring/values.yaml"
+      ],
+      "description": "Scrapes application and Kubernetes metrics.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/prometheus.svg",
+      "statusEndpoint": "/api/v1/tools/prometheus/status"
+    },
+    {
+      "id": "alertmanager",
+      "name": "Alertmanager",
+      "category": "Observability",
+      "color": "#d84835",
+      "short": "AM",
+      "configPaths": [
+        "infra/monitoring/values.yaml"
+      ],
+      "description": "Groups and routes alerts; external receiver is configured separately.",
+      "installedVia": "Prometheus stack",
+      "icon": "/canvas/icons/alertmanager.svg",
+      "statusEndpoint": "/api/v1/tools/alertmanager/status"
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "category": "Observability",
+      "color": "#e89520",
+      "short": "G",
+      "configPaths": [
+        "infra/monitoring/values.yaml"
+      ],
+      "description": "Queries Prometheus, Loki and Tempo as data sources.",
+      "installedVia": "Prometheus stack",
+      "icon": "/canvas/icons/grafana.svg",
+      "statusEndpoint": "/api/v1/tools/grafana/status"
+    },
+    {
+      "id": "alloy",
+      "name": "Grafana Alloy",
+      "category": "Observability",
+      "color": "#e98043",
+      "short": "AL",
+      "configPaths": [
+        "infra/observability/alloy-values.yaml"
+      ],
+      "description": "Collects Kubernetes pod logs using the Kubernetes API.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/alloy.svg",
+      "statusEndpoint": "/api/v1/tools/alloy/status"
+    },
+    {
+      "id": "loki",
+      "name": "Loki",
+      "category": "Observability",
+      "color": "#c5a12b",
+      "short": "L",
+      "configPaths": [
+        "infra/observability/loki-values.yaml"
+      ],
+      "description": "Receives and indexes logs from Alloy.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/loki.svg",
+      "statusEndpoint": "/api/v1/tools/loki/status"
+    },
+    {
+      "id": "opentelemetry",
+      "name": "OpenTelemetry",
+      "category": "Observability",
+      "color": "#3d8190",
+      "short": "OT",
+      "configPaths": [
+        "infra/observability/otel-values.yaml"
+      ],
+      "description": "Accepts OTLP spans and exports them to Tempo.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/opentelemetry.svg",
+      "statusEndpoint": "/api/v1/tools/opentelemetry/status"
+    },
+    {
+      "id": "tempo",
+      "name": "Tempo",
+      "category": "Observability",
+      "color": "#db9553",
+      "short": "T",
+      "configPaths": [
+        "infra/observability/tempo-values.yaml"
+      ],
+      "description": "Stores application traces and serves trace queries.",
+      "installedVia": "Argo CD",
+      "icon": "/canvas/icons/tempo.svg",
+      "statusEndpoint": "/api/v1/tools/tempo/status"
+    },
+    {
+      "id": "velero",
+      "name": "Velero",
+      "category": "Recovery",
+      "color": "#18a7b4",
+      "short": "V",
+      "configPaths": [
+        "infra/backup/values.yaml"
+      ],
+      "description": "Optional backups for a configured S3 bucket; disabled initially.",
+      "installedVia": "Optional Helm",
+      "icon": "/canvas/icons/velero.svg",
+      "statusEndpoint": "/api/v1/tools/velero/status"
+    },
+    {
+      "id": "control-api",
+      "name": "Control API",
+      "category": "Runtime",
+      "color": "#15976b",
+      "short": "API",
+      "configPaths": [
+        "apps/control-api/src/app.mjs"
+      ],
+      "description": "Read-only integration API and editable workflow canvas.",
+      "installedVia": "Application chart",
+      "icon": "/canvas/icons/control-api.svg",
+      "statusEndpoint": "/api/v1/tools/control-api/status"
+    }
+  ]
+}

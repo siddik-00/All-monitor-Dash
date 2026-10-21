@@ -1,0 +1,22 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: devops-workflow
+servers: 1
+agents: 2
+image: rancher/k3s:v1.35.9-k3s1
+kubeAPI:
+  hostIP: 127.0.0.1
+  hostPort: '6550'
+options:
+  k3d:
+    wait: true
+    timeout: 180s
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true
+  k3s:
+    extraArgs:
+    - arg: --disable=traefik
+      nodeFilters:
+      - server:*

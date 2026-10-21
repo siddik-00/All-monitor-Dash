@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 2,
+  "id": "infrastructure",
+  "title": "Infrastructure and platform",
+  "subtitle": "Use existing Kubernetes or local k3d. Terraform owns Argo CD; Argo CD owns enabled platform releases.",
+  "kind": "devops-tool-workflow",
+  "status": "configured-design",
+  "canvas": {
+    "width": 1480,
+    "height": 1260
+  },
+  "groups": [],
+  "nodes": [
+    {
+      "id": "ansible",
+      "tool": "ansible",
+      "label": "Ansible",
+      "x": 80,
+      "y": 180,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/ansible/site.yaml",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "terraform",
+      "tool": "terraform",
+      "label": "Terraform",
+      "x": 350,
+      "y": 180,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/terraform/bootstrap/main.tf",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "argocd",
+      "tool": "argocd",
+      "label": "Argo CD",
+      "x": 620,
+      "y": 180,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/gitops/platform/templates/applications.yaml",
+      "caption": "Delivery"
+    },
+    {
+      "id": "helm",
+      "tool": "helm",
+      "label": "Helm",
+      "x": 890,
+      "y": 180,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/helm/control-api/Chart.yaml",
+      "caption": "Infrastructure"
+    },
+    {
+      "id": "kubernetes",
+      "tool": "kubernetes",
+      "label": "Kubernetes",
+      "x": 1160,
+      "y": 180,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/local/k3d.yaml",
+      "caption": "Runtime"
+    },
+    {
+      "id": "cert-manager",
+      "tool": "cert-manager",
+      "label": "cert-manager",
+      "x": 80,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/cert-manager-values.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "external-secrets",
+      "tool": "external-secrets",
+      "label": "External Secrets",
+      "x": 350,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/external-secrets-values.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "kyverno",
+      "tool": "kyverno",
+      "label": "Kyverno",
+      "x": 620,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/security/policies.yaml",
+      "caption": "Security"
+    },
+    {
+      "id": "velero",
+      "tool": "velero",
+      "label": "Velero",
+      "x": 890,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/backup/values.yaml",
+      "caption": "Recovery"
+    },
+    {
+      "id": "control-api",
+      "tool": "control-api",
+      "label": "Control API",
+      "x": 1160,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "apps/control-api/src/app.mjs",
+      "caption": "Runtime"
+    }
+  ],
+  "edges": [
+    {
+      "id": "ansible--kubernetes",
+      "source": "ansible",
+      "target": "kubernetes",
+      "label": "host preparation",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "terraform--argocd",
+      "source": "terraform",
+      "target": "argocd",
+      "label": "Helm release",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "helm--argocd",
+      "source": "helm",
+      "target": "argocd",
+      "label": "templates",
+      "kind": "infrastructure"
+    },
+    {
+      "id": "argocd--kubernetes",
+      "source": "argocd",
+      "target": "kubernetes",
+      "label": "platform apps",
+      "kind": "delivery"
+    },
+    {
+      "id": "kubernetes--cert-manager",
+      "source": "kubernetes",
+      "target": "cert-manager",
+      "label": "controller",
+      "kind": "security"
+    },
+    {
+      "id": "kubernetes--external-secrets",
+      "source": "kubernetes",
+      "target": "external-secrets",
+      "label": "controller",
+      "kind": "security"
+    },
+    {
+      "id": "kubernetes--kyverno",
+      "source": "kubernetes",
+      "target": "kyverno",
+      "label": "policy engine",
+      "kind": "security"
+    },
+    {
+      "id": "kubernetes--velero",
+      "source": "kubernetes",
+      "target": "velero",
+      "label": "optional backup",
+      "kind": "recovery"
+    },
+    {
+      "id": "external-secrets--control-api",
+      "source": "external-secrets",
+      "target": "control-api",
+      "label": "source -> target Secret",
+      "kind": "security"
+    },
+    {
+      "id": "cert-manager--control-api",
+      "source": "cert-manager",
+      "target": "control-api",
+      "label": "local CA example",
+      "kind": "security"
+    }
+  ]
+}

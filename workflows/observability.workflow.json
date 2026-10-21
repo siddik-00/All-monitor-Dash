@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "id": "observability",
+  "title": "Metrics, logs and traces",
+  "subtitle": "Real health APIs are server-side probes. Unconfigured tools never appear healthy.",
+  "kind": "devops-tool-workflow",
+  "status": "configured-design",
+  "canvas": {
+    "width": 1480,
+    "height": 1260
+  },
+  "groups": [],
+  "nodes": [
+    {
+      "id": "control-api",
+      "tool": "control-api",
+      "label": "Control API",
+      "x": 80,
+      "y": 350,
+      "width": 166,
+      "height": 88,
+      "codePath": "apps/control-api/src/app.mjs",
+      "caption": "Runtime"
+    },
+    {
+      "id": "kubernetes",
+      "tool": "kubernetes",
+      "label": "Kubernetes",
+      "x": 80,
+      "y": 650,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/local/k3d.yaml",
+      "caption": "Runtime"
+    },
+    {
+      "id": "prometheus",
+      "tool": "prometheus",
+      "label": "Prometheus",
+      "x": 420,
+      "y": 140,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "alertmanager",
+      "tool": "alertmanager",
+      "label": "Alertmanager",
+      "x": 760,
+      "y": 140,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "alloy",
+      "tool": "alloy",
+      "label": "Grafana Alloy",
+      "x": 420,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/alloy-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "loki",
+      "tool": "loki",
+      "label": "Loki",
+      "x": 760,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/loki-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "opentelemetry",
+      "tool": "opentelemetry",
+      "label": "OpenTelemetry",
+      "x": 420,
+      "y": 860,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/otel-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "tempo",
+      "tool": "tempo",
+      "label": "Tempo",
+      "x": 760,
+      "y": 860,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/observability/tempo-values.yaml",
+      "caption": "Observability"
+    },
+    {
+      "id": "grafana",
+      "tool": "grafana",
+      "label": "Grafana",
+      "x": 1120,
+      "y": 500,
+      "width": 166,
+      "height": 88,
+      "codePath": "infra/monitoring/values.yaml",
+      "caption": "Observability"
+    }
+  ],
+  "edges": [
+    {
+      "id": "control-api--prometheus",
+      "source": "control-api",
+      "target": "prometheus",
+      "label": "GET /metrics",
+      "kind": "metrics"
+    },
+    {
+      "id": "prometheus--alertmanager",
+      "source": "prometheus",
+      "target": "alertmanager",
+      "label": "alerts",
+      "kind": "metrics"
+    },
+    {
+      "id": "prometheus--grafana",
+      "source": "prometheus",
+      "target": "grafana",
+      "label": "PromQL",
+      "kind": "metrics"
+    },
+    {
+      "id": "kubernetes--alloy",
+      "source": "kubernetes",
+      "target": "alloy",
+      "label": "pod log API",
+      "kind": "logs"
+    },
+    {
+      "id": "alloy--loki",
+      "source": "alloy",
+      "target": "loki",
+      "label": "POST /loki/api/v1/push",
+      "kind": "logs"
+    },
+    {
+      "id": "loki--grafana",
+      "source": "loki",
+      "target": "grafana",
+      "label": "LogQL",
+      "kind": "logs"
+    },
+    {
+      "id": "control-api--opentelemetry",
+      "source": "control-api",
+      "target": "opentelemetry",
+      "label": "POST /v1/traces",
+      "kind": "traces"
+    },
+    {
+      "id": "opentelemetry--tempo",
+      "source": "opentelemetry",
+      "target": "tempo",
+      "label": "OTLP gRPC :4317",
+      "kind": "traces"
+    },
+    {
+      "id": "tempo--grafana",
+      "source": "tempo",
+      "target": "grafana",
+      "label": "trace query API",
+      "kind": "traces"
+    }
+  ]
+}

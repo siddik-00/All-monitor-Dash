@@ -1,0 +1,7 @@
+apiVersion: v2
+name: control-api
+description: DevOps workflow canvas and read-only integration API
+type: application
+version: 2.0.0
+appVersion: 2.0.0
+kubeVersion: '>=1.30.0-0'

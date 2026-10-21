@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "control-api.name" . }}
+  labels:
+    {{- include "control-api.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ required "Set ingress.className to your existing ingress controller" .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ required "Set ingress.host" .Values.ingress.host | quote }}
+      secretName: {{ required "Set ingress.tlsSecretName to an existing TLS secret" .Values.ingress.tlsSecretName }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "control-api.name" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}

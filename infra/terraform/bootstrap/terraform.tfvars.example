@@ -1,0 +1,2 @@
+kubeconfig_path = "~/.kube/config"
+kube_context    = "k3d-devops-workflow"

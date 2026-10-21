@@ -1,0 +1,86 @@
+repoURL: ''
+gitRevision: main
+application:
+  enabled: false
+components:
+  cert-manager:
+    enabled: true
+    chart: cert-manager
+    repo: https://charts.jetstack.io
+    version: v1.21.2
+    namespace: cert-manager
+    releaseName: cert-manager
+    valuesFile: infra/security/cert-manager-values.yaml
+    wave: -20
+  external-secrets:
+    enabled: true
+    chart: external-secrets
+    repo: https://charts.external-secrets.io
+    version: 2.13.0
+    namespace: external-secrets
+    releaseName: external-secrets
+    valuesFile: infra/security/external-secrets-values.yaml
+    wave: -20
+  kyverno:
+    enabled: true
+    chart: kyverno
+    repo: https://kyverno.github.io/kyverno
+    version: 3.9.1
+    namespace: kyverno
+    releaseName: kyverno
+    valuesFile: infra/security/kyverno-values.yaml
+    wave: -20
+  observability:
+    enabled: true
+    chart: kube-prometheus-stack
+    repo: https://prometheus-community.github.io/helm-charts
+    version: 92.10.0
+    namespace: monitoring
+    releaseName: observability
+    valuesFile: infra/monitoring/values.yaml
+    wave: -10
+  loki:
+    enabled: true
+    chart: loki
+    repo: https://grafana.github.io/helm-charts
+    version: 7.3.0
+    namespace: monitoring
+    releaseName: loki
+    valuesFile: infra/observability/loki-values.yaml
+    wave: -10
+  tempo:
+    enabled: true
+    chart: tempo
+    repo: https://grafana.github.io/helm-charts
+    version: 1.24.4
+    namespace: monitoring
+    releaseName: tempo
+    valuesFile: infra/observability/tempo-values.yaml
+    wave: -10
+  otel-collector:
+    enabled: true
+    chart: opentelemetry-collector
+    repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.176.0
+    namespace: monitoring
+    releaseName: otel-collector
+    valuesFile: infra/observability/otel-values.yaml
+    wave: 0
+  alloy:
+    enabled: true
+    chart: alloy
+    repo: https://grafana.github.io/helm-charts
+    version: 1.14.0
+    namespace: monitoring
+    releaseName: alloy
+    valuesFile: infra/observability/alloy-values.yaml
+    wave: 0
+  velero:
+    enabled: false
+    chart: velero
+    repo: https://vmware-tanzu.github.io/helm-charts
+    version: 12.2.1
+    namespace: velero
+    releaseName: velero
+    valuesFile: infra/backup/values.yaml
+    wave: 10

@@ -1,0 +1,7 @@
+---
+- name: Prepare existing Ubuntu Kubernetes hosts
+  hosts: k8s_hosts
+  become: true
+  gather_facts: true
+  roles:
+    - k8s_host

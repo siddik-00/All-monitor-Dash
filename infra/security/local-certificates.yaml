@@ -1,0 +1,19 @@
+# Local/private CA example. It does not create a publicly trusted certificate.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: platform-selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: workflow-local
+  namespace: platform-system
+spec:
+  secretName: workflow-local-tls
+  issuerRef:
+    name: platform-selfsigned
+    kind: ClusterIssuer
+  dnsNames: [workflow.local]
