@@ -122,3 +122,7 @@ npm run verify:charts
 ```
 
 Helm is required for infrastructure validation. Chart verification downloads official pinned charts, verifies hashes and renders them without changing a cluster. Terraform/Ansible checks also run in CI. See `docs/VERIFICATION.md` for performed checks and their limits.
+
+## Contribute
+
+Start with one small improvement and open a pull request against `dev`. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the review workflow and ideas for follow-up work.
