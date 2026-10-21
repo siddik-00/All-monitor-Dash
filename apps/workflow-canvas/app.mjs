@@ -1,6 +1,6 @@
 import {validateGraph,connect,removeNode,traceEdges,connectionPath} from './model.mjs';
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
-let tools=[],graph=null,original=null,clusterData=null,clusterRevision='',serverContext='',selectedContext='',followServerContext=true,contextWatcher=null,view='system',selected=null,selectedEdge=null,connecting=false,token='',apiBase='',scale=1,offset={x:0,y:0},drag=null,poller=null,traceRun=0;
+let tools=[],graph=null,original=null,clusterData=null,clusterRevision='',serverContext='',selectedContext='',contextWatcher=null,view='system',selected=null,selectedEdge=null,connecting=false,token='',apiBase='',scale=1,offset={x:0,y:0},drag=null,poller=null,traceRun=0;
 try{apiBase=localStorage.getItem('devops-workflow-api-base')||'';}catch{}
 let toolMap=new Map(),observations=new Map();
 function message(text,error=false){$('message').textContent=text;$('message').classList.toggle('error',error);}
@@ -33,10 +33,10 @@ function renderDashboard(){
 }
 async function loadContexts(){
  try{const data=await api('/api/v1/clusters'),select=$('cluster-context'),previous=selectedContext,revisionChanged=clusterRevision!==''&&clusterRevision!==data.revision,currentChanged=serverContext!==''&&serverContext!==data.current;clusterRevision=data.revision;serverContext=data.current||'';
-  if(!selectedContext||!data.contexts.includes(selectedContext)||(followServerContext&&currentChanged))selectedContext=data.current||data.contexts[0]||'';
+  if(!selectedContext||!data.contexts.includes(selectedContext)||currentChanged)selectedContext=data.current||data.contexts[0]||'';
   select.replaceChildren(new Option(data.contexts.length?'Select context':'No cluster connected',''));
   for(const context of data.contexts)select.append(new Option(context,context));select.value=selectedContext;
-  return revisionChanged||previous!==selectedContext;
+  return revisionChanged||currentChanged||previous!==selectedContext;
  }catch{selectedContext='';const select=$('cluster-context');select.replaceChildren(new Option('No cluster connected',''));return false;}
 }
 function renderPods(){
@@ -113,7 +113,7 @@ $('export').onclick=()=>{if(!graph)return;const url=URL.createObjectURL(new Blob
 $('import').onclick=()=>$('import-file').click();$('import-file').onchange=async()=>{const file=$('import-file').files[0];if(!file)return;try{if(file.size>512000)throw Error('Workflow JSON must be smaller than 500 KB.');graph=validateGraph(JSON.parse(await file.text()),tools);selected=null;selectedEdge=null;traceRun++;remember();$('workflow-title').textContent=graph.title;$('workflow-subtitle').textContent=graph.subtitle;draw();fit();message('Workflow JSON imported and saved locally.');}catch(e){message(e.message,true);}finally{$('import-file').value='';}};
 $('refresh').onclick=()=>refresh();$('auto-refresh').onchange=()=>{clearInterval(poller);poller=$('auto-refresh').checked?setInterval(()=>refresh(),20000):null;};
 $('dashboard-refresh').onclick=()=>refresh();
-$('cluster-context').onchange=()=>{selectedContext=$('cluster-context').value;followServerContext=false;refresh();};
+$('cluster-context').onchange=()=>{selectedContext=$('cluster-context').value;refresh();};
 $('open-infrastructure').onclick=()=>loadView('infrastructure');
 $('running-workloads-card').onclick=openPods;
 $('running-workloads-card').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openPods();}};
